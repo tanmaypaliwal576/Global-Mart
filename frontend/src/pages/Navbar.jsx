@@ -13,7 +13,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const dropdownRef = useRef(null); // ⬅ For detecting outside click
+  const dropdownRef = useRef(null);
 
   // Load user from localStorage
   useEffect(() => {
@@ -35,14 +35,12 @@ export default function Navbar() {
         setOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Logout
-  const handleLogout = async () => {
-    // Optionally you might want to call logout endpoint on backend to clear cookie.
+  const handleLogout = () => {
     localStorage.removeItem("user");
     window.dispatchEvent(new Event("storage"));
     navigate("/");
@@ -50,14 +48,19 @@ export default function Navbar() {
 
   return (
     <nav className="w-full flex justify-between items-center px-10 py-4 shadow-sm fixed top-0 bg-white z-20">
-      {/* Logo */}
-      <Link to="/">
+      {/* LOGO + TITLE */}
+      <Link to="/" className="flex items-center gap-2">
+        <img
+          src="./green_cart.svg" // or logo.svg
+          className="w-10 h-10 object-contain"
+          alt="logo"
+        />
         <h1 className="text-2xl font-bold text-emerald-600 cursor-pointer">
           Global Mart
         </h1>
       </Link>
 
-      {/* Navigation */}
+      {/* NAV LINKS */}
       <ul className="flex gap-8 text-gray-600 font-medium">
         <Link to="/">
           <li className="cursor-pointer hover:text-emerald-500">Home</li>
@@ -69,7 +72,6 @@ export default function Navbar() {
 
       {/* RIGHT SECTION */}
       <div className="flex items-center gap-4 relative" ref={dropdownRef}>
-        {/* If NOT logged in */}
         {!user ? (
           <Link
             to="/auth"
