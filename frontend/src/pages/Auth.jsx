@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
@@ -36,14 +39,10 @@ export default function Auth() {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/auth/login",
-        {
-          email: form.email,
-          password: form.password,
-        },
-        { withCredentials: true }
-      );
+      const res = await axios.post("/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
 
       toast.success("Logged in successfully!");
 
@@ -61,6 +60,7 @@ export default function Auth() {
       }
     } catch (err) {
       toast.error(err.response?.data || "Login failed");
+      console.error(err);
     }
   };
 
@@ -75,20 +75,17 @@ export default function Auth() {
     }
 
     try {
-      await axios.post(
-        "http://localhost:3000/auth/register",
-        {
-          fullname: form.fullname,
-          email: form.email,
-          password: form.password,
-        },
-        { withCredentials: true }
-      );
+      await axios.post("/auth/register", {
+        fullname: form.fullname,
+        email: form.email,
+        password: form.password,
+      });
 
       toast.success("Account created! You can now login.");
       setIsLogin(true);
     } catch (err) {
       toast.error(err.response?.data || "Registration failed");
+      console.error(err);
     }
   };
 

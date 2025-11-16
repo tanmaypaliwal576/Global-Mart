@@ -6,7 +6,6 @@ import {
   LogOut,
   ShoppingBag,
   ShoppingCart,
-  ListOrdered,
   LayoutDashboard,
 } from "lucide-react";
 
@@ -42,7 +41,8 @@ export default function Navbar() {
   }, []);
 
   // Logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Optionally you might want to call logout endpoint on backend to clear cookie.
     localStorage.removeItem("user");
     window.dispatchEvent(new Event("storage"));
     navigate("/");

@@ -2,20 +2,20 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/orders/my", {
-          withCredentials: true,
-        });
+        const res = await axios.get("/orders/my");
         setOrders(res.data.orders || []);
       } catch (err) {
         toast.error("Failed to load orders");
+        console.error(err);
       }
     };
     loadOrders();
@@ -53,13 +53,13 @@ export default function MyOrders() {
                         "https://placehold.co/60"
                       }
                       className="w-14 h-14 rounded-md border object-cover"
+                      alt={item.productId?.name || "Product"}
                     />
 
                     <div>
                       <p className="font-medium">
                         {item.productId?.name || "Product Deleted"}
                       </p>
-
                       <p className="text-sm text-gray-500">Qty: {item.qty}</p>
                     </div>
                   </div>

@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/authRoutes.js";
 import productRoute from "./routes/productRoute.js";
@@ -13,30 +15,37 @@ dotenv.config();
 
 const app = express();
 
-// MIDDLEWARES
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS (for React on Vite)
+// CORS → Allow all origins for deployment
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: true,
     credentials: true,
   })
 );
 
-// ROUTES
+// API ROUTES
 app.use("/auth", authRoutes);
 app.use("/products", productRoute);
 app.use("/cart", cartRoutes);
 app.use("/orders", orderRoutes);
 
-// DEFAULT ROUTE
-app.get("/", (req, res) => {
-  res.send("E-Shop Backend Running 🚀");
+// FRONTEND DEPLOYMENT (VITE DIST)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "dist")));
+
+// Serve React app for all routes
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-// CONNECT MONGODB
+// CONNECT MONGO
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✔"))

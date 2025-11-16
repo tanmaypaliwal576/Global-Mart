@@ -4,6 +4,9 @@ import toast from "react-hot-toast";
 import { Plus, Pencil, Trash2, X, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function Admin() {
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -18,15 +21,17 @@ export default function Admin() {
       toast.error("Access Denied!");
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load products
   const loadProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/products");
-      setProducts(res.data.products);
-    } catch {
+      const res = await axios.get("/products");
+      setProducts(res.data.products || []);
+    } catch (err) {
       toast.error("Failed to fetch products");
+      console.error(err);
     }
   };
 
@@ -54,7 +59,7 @@ export default function Admin() {
     setForm({
       ...form,
       imageFile: file,
-      preview: URL.createObjectURL(file),
+      preview: file ? URL.createObjectURL(file) : "",
     });
   };
 
@@ -74,13 +79,21 @@ export default function Admin() {
         formData.append("image", form.imageFile);
       }
 
-      await axios.post("http://localhost:3000/products/create", formData, {
-        withCredentials: true,
+      await axios.post("/products/create", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success("Product added!");
       setShowForm(false);
+      setForm({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        stock: 1,
+        imageFile: null,
+        preview: "",
+      });
       loadProducts();
     } catch (error) {
       toast.error("Failed to add product");
@@ -104,37 +117,38 @@ export default function Admin() {
         formData.append("image", form.imageFile);
       }
 
-      // FIXED ROUTE
-      await axios.put(
-        `http://localhost:3000/products/update/${editProduct._id}`,
-        formData,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      await axios.put(`/products/update/${editProduct._id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       toast.success("Product updated!");
       setEditProduct(null);
       setShowForm(false);
+      setForm({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        stock: 1,
+        imageFile: null,
+        preview: "",
+      });
       loadProducts();
-    } catch {
+    } catch (err) {
       toast.error("Update failed");
+      console.error(err);
     }
   };
 
   // ================= DELETE PRODUCT =================
   const handleDelete = async (id) => {
     try {
-      // FIXED ROUTE
-      await axios.delete(`http://localhost:3000/products/delete/${id}`, {
-        withCredentials: true,
-      });
-
+      await axios.delete(`/products/delete/${id}`);
       toast.success("Product deleted");
       loadProducts();
-    } catch {
+    } catch (err) {
       toast.error("Failed to delete");
+      console.error(err);
     }
   };
 
@@ -195,6 +209,7 @@ export default function Admin() {
                         : "https://placehold.co/60"
                     }
                     className="w-16 h-16 object-cover rounded-lg"
+                    alt={p.name}
                   />
                 </td>
 
@@ -308,6 +323,7 @@ export default function Admin() {
                   <img
                     src={form.preview}
                     className="w-32 h-32 object-cover mt-3 rounded-lg border"
+                    alt="preview"
                   />
                 )}
               </div>
