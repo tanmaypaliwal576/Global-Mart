@@ -4,6 +4,9 @@ import { MapPin, CreditCard } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function Payment() {
   const navigate = useNavigate();
 
@@ -32,20 +35,18 @@ export default function Payment() {
           return navigate("/auth");
         }
 
-        const res = await axios.get("http://localhost:3000/cart", {
-          withCredentials: true,
-        });
-
+        const res = await axios.get("/cart");
         setCart(res.data.cart || []);
 
         const total = (res.data.cart || []).reduce(
-          (acc, item) => acc + item.productId.price * item.qty,
+          (acc, item) => acc + (item.productId?.price || 0) * item.qty,
           0
         );
 
         setSubtotal(total);
       } catch (err) {
         toast.error("Failed to load cart");
+        console.error(err);
       }
     };
 
@@ -84,17 +85,15 @@ export default function Payment() {
         address: form,
       };
 
-      await axios.post("http://localhost:3000/orders", orderData, {
-        withCredentials: true,
-      });
+      await axios.post("/orders", orderData);
 
       toast.success("Order placed successfully!");
 
       // optional: you may want to call an endpoint to clear cart.
-      // navigate to myorders
       navigate("/myorders");
     } catch (err) {
       toast.error(err.response?.data?.message || "Order failed");
+      console.error(err);
     }
   };
 

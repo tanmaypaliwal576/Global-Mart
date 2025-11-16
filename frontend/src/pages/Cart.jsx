@@ -4,6 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function Cart() {
   const [cart, setCart] = useState([]);
   const navigate = useNavigate();
@@ -23,12 +26,11 @@ export default function Cart() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/cart", {
-          withCredentials: true,
-        });
+        const res = await axios.get("/cart");
         setCart(res.data.cart || []);
       } catch (err) {
         toast.error("Failed to load cart");
+        console.error(err);
       }
     };
 
@@ -38,12 +40,7 @@ export default function Cart() {
   // Increase Qty
   const increaseQty = async (productId) => {
     try {
-      await axios.put(
-        "http://localhost:3000/cart/update",
-        { productId, action: "increase" },
-        { withCredentials: true }
-      );
-
+      await axios.put("/cart/update", { productId, action: "increase" });
       setCart((prev) =>
         prev.map((item) =>
           item.productId._id === productId
@@ -53,18 +50,14 @@ export default function Cart() {
       );
     } catch (err) {
       toast.error("Failed to update quantity");
+      console.error(err);
     }
   };
 
   // Decrease Qty
   const decreaseQty = async (productId) => {
     try {
-      await axios.put(
-        "http://localhost:3000/cart/update",
-        { productId, action: "decrease" },
-        { withCredentials: true }
-      );
-
+      await axios.put("/cart/update", { productId, action: "decrease" });
       setCart((prev) =>
         prev.map((item) =>
           item.productId._id === productId && item.qty > 1
@@ -74,25 +67,24 @@ export default function Cart() {
       );
     } catch (err) {
       toast.error("Failed to update quantity");
+      console.error(err);
     }
   };
 
   // Remove Item
   const removeItem = async (productId) => {
     try {
-      await axios.delete(`http://localhost:3000/cart/remove/${productId}`, {
-        withCredentials: true,
-      });
-
+      await axios.delete(`/cart/remove/${productId}`);
       setCart((prev) => prev.filter((i) => i.productId._id !== productId));
     } catch (err) {
       toast.error("Failed to remove item");
+      console.error(err);
     }
   };
 
   // Subtotal
   const subtotal = cart.reduce(
-    (acc, item) => acc + item.productId.price * item.qty,
+    (acc, item) => acc + (item.productId?.price || 0) * item.qty,
     0
   );
 

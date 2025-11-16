@@ -3,6 +3,9 @@ import { Search, ChevronDown, ShoppingCart, ArrowUpDown } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+axios.defaults.baseURL = "/";
+axios.defaults.withCredentials = true;
+
 export default function ProductsList() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
@@ -46,12 +49,13 @@ export default function ProductsList() {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:3000/products");
+      const res = await axios.get("/products");
       setProducts(res.data.products || []);
       setLoading(false);
     } catch (err) {
       setLoading(false);
       toast.error("Failed to load products");
+      console.error(err);
     }
   };
 
@@ -68,14 +72,11 @@ export default function ProductsList() {
     }
 
     try {
-      await axios.post(
-        "http://localhost:3000/cart/add",
-        { productId: product._id },
-        { withCredentials: true }
-      );
+      await axios.post("/cart/add", { productId: product._id });
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to add to cart");
+      console.error(err);
     }
   };
 
@@ -94,8 +95,7 @@ export default function ProductsList() {
       if (sortOption === "Price: High to Low") return b.price - a.price;
       if (sortOption === "Newest First")
         return new Date(b.createdAt) - new Date(a.createdAt);
-
-      return 0; // Default
+      return 0;
     });
 
   return (
