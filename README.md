@@ -95,12 +95,8 @@ This project demonstrates strong full-stack engineering and modern UI/UX princip
 
 ## 🔮 Future Improvements
 
-- Complete shopping cart system  
-- User authentication + JWT  
-- Admin dashboard for product management  
 - Payment gateway integration  
 - Wishlist functionality  
-- Order history  
 
 ---
 
